@@ -1,12 +1,37 @@
-from __init__ import CURSOR, CONN
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# Define the database URL (SQLite in this case)
+DATABASE_URL = 'sqlite:///books.db'
+
+# Create an engine
+engine = create_engine(DATABASE_URL)
+
+# Define a base class for the declarative model
+Base = declarative_base()
+
+# Define the Book class
+class Book(Base):
+    __tablename__ = 'books'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    author = Column(String, nullable=False)
+    pages = Column(Integer, nullable=False)
+
+# Create the table in the database
+Base.metadata.create_all(engine)
+
+# Create a session maker
+Session = sessionmaker(bind=engine)
 
 def main():
-        
-        # initialize books list
-    booksList = []
+    # Initialize a session
+    session = Session()
     
     choice = 0
-    while choice !=4:
+    while choice != 4:
         print("*** Books Manager ***")
         print("1) Add a book")
         print("2) Lookup a book")
@@ -15,51 +40,40 @@ def main():
         choice = int(input())
         
         if choice == 1:
-            print("Addig a book...")
-            nBook = input("Enter the name of the book >>>")
-            nAuthor = input("Enter the name of the author >>>")
-            nPages = input("Enter the number of pages >>>")
-            booksList.append([nBook, nAuthor, nPages])
+            print("Adding a book...")
+            nBook = input("Enter the name of the book >>> ")
+            nAuthor = input("Enter the name of the author >>> ")
+            nPages = int(input("Enter the number of pages >>> "))
+            new_book = Book(name=nBook, author=nAuthor, pages=nPages)
+            session.add(new_book)
+            session.commit()
+            print("Book added successfully.")
         
         elif choice == 2:
             print("Looking up for a book...")
             keyword = input("Search book by name: ")
-            for book in booksList:
-                if keyword in book:
-                    print(book)
+            books = session.query(Book).filter(Book.name.contains(keyword)).all()
+            if books:
+                for book in books:
+                    print(f"ID: {book.id}, Name: {book.name}, Author: {book.author}, Pages: {book.pages}")
+            else:
+                print("No books found.")
         
         elif choice == 3:
             print("Displaying all books...")
-            for i in range(len(booksList)):
-                print(booksList[i])
+            books = session.query(Book).all()
+            if books:
+                for book in books:
+                    print(f"ID: {book.id}, Name: {book.name}, Author: {book.author}, Pages: {book.pages}")
+            else:
+                print("No books available.")
         
         elif choice == 4:
             print("Quitting Program")
+    
+    # Close the session
+    session.close()
     print("Program Terminated!")
-    
-    
 
 if __name__ == "__main__":
     main()
-
-
-    @classmethod
-    def create_table(cls):
-        sql = """
-            CREATE TABLE IF NOT EXISTS books (
-            id INTEGER PRIMARY KEY,
-            book TEXT,
-            author TEXT,
-            pages INTEGER)
-        """
-        CURSOR.execute(sql)
-        CONN.commit()
-
-    @classmethod
-    def drop_table(cls):
-        sql = """
-            DROP TABLE IF EXISTS books;
-        """
-        CURSOR.execute(sql)
-        CONN.commit()
-
