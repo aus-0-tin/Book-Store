@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Define the database URL (SQLite in this case)
 DATABASE_URL = 'sqlite:///books.db'
