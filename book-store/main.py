@@ -31,12 +31,13 @@ def main():
     session = Session()
     
     choice = 0
-    while choice != 4:
+    while choice != 5:
         print("*** Books Manager ***")
         print("1) Add a book")
         print("2) Lookup a book")
         print("3) Display books")
-        print("4) Quit")
+        print("4) Delete a book")
+        print("5) Quit")
         choice = int(input())
         
         if choice == 1:
@@ -69,6 +70,17 @@ def main():
                 print("No books available.")
         
         elif choice == 4:
+            print("Deleting a book...")
+            book_id = int(input("Enter the ID of the book to delete: "))
+            book = session.query(Book).filter(Book.id == book_id).first()
+            if book:
+                session.delete(book)
+                session.commit()
+                print("Book deleted successfully.")
+            else:
+                print("Book not found.")
+        
+        elif choice == 5:
             print("Quitting Program")
     
     # Close the session
